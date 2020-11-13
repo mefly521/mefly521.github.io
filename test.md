@@ -1,7 +1,7 @@
 ---
 layout: page
 title: "PAGE TITLE"
-permalink: /test/
+permalink: /ab/
 ---
 
 # 34343
