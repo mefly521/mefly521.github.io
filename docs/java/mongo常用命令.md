@@ -1,5 +1,37 @@
 ## 查询
 
+### 查询集群
+
+查看集群中各节点的状态：
+
+```
+rs0:PRIMARY> rs.status()
+```
+
+2、查看集群中各节点配置情况：
+
+```
+rs0:PRIMARY> rs.conf()
+```
+
+
+
+常用运费符
+
+| SQL             | MQL                                |
+| --------------- | ---------------------------------- |
+| a=1             | {a: 1}                             |
+| a<>1            | {a: {$ne: 1}}                      |
+| a>1             | {a: {$gt: 1}}                      |
+| a<1             | {a: {$lt: 1}}                      |
+| a>=1            | {a: {$gte: 1}}                     |
+| a<=1            | {a: {$lte: 1}}                     |
+| a=1 and b=1     | {a:1,b:1} 或 {$and: [{a:1},{b:1}]} |
+| a=1 or b=1      | {$or:[{a:1},{b:1}]}                |
+| a=null          | {a: {$exists:false}}               |
+| a in (1,2,3)    | {a: {$in:[1,2,3]}}                 |
+| a not in(1,2,3) | {a: {$nin:[1,2,3]}}                |
+
 ### select by id 
 
 db.collect.find({ "_id" : ObjectId("5326bfc0e6f780b21635248f") })
@@ -141,6 +173,10 @@ db.artwork.aggregate( [
 
 ## java
 
+### 操作符
+
+用mongoTemplate的andExpression表达式来表示
+
 ### objectId
 
 ```
@@ -153,6 +189,26 @@ public DBObject findDocumentById(String id) {
 ```
 
 ## 聚合
+
+### 对 group by 后的结果再求合
+
+```
+db.EV_DECLARE.aggregate([
+    {$group: {_id: "$workGroupId",count:{$sum:1}}},
+    {$group:
+         {
+          	_id : "total",
+           totalAmount: { $sum: 1 }
+     }}
+])
+```
+
+MongoDB 中聚合统计计算--$SUM表达式 - 东山絮柳仔 - 博客园
+https://www.cnblogs.com/xuliuzai/p/11400546.html
+
+
+
+
 
 《MongoDB高手课》学习记录（第四天） 
 https://segmentfault.com/a/1190000021364343
@@ -181,6 +237,8 @@ unwind 展开数组
 
 ## 复制集
 
+MongoDB是原生支持高可用的, 主结点故障时，自动切换替换结点
+
 原理
 https://segmentfault.com/a/1190000021390186
 
@@ -197,7 +255,7 @@ https://blog.csdn.net/DWL0208/article/details/106467598/
 
 
 
-崛起于Springboot2.X+ MongoDB读写分离（25） - 纯粹而又极致的光--木九天 - OSCHINA - 中文开源技术交流社区
+崛起于Springboot2.X+ MongoDB读写分离（25） 
 https://my.oschina.net/mdxlcj/blog/1859527
 
 
@@ -207,3 +265,15 @@ https://my.oschina.net/mdxlcj/blog/1859527
 ## 工具
 
 https://www.mongodb.com/try/download/compass
+
+## 索引
+
+aggregate explain 分析
+
+1. 
+   db.doctorinfo.aggregate(
+2. [ { "$match" : {"provinceId":13, "doctorService_phone" : "1" , "displayStatus" : 1}},
+3. { "$group" : { "_id" : { "standardDeptId" : "$standardDeptId"} , "standardDeptId" : { "$first" : "$standardDeptId"}}},
+4. { "$project" : { "standardDeptId" : 1}}],
+5. {explain:true}
+6. )
